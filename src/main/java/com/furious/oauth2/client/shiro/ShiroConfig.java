@@ -27,13 +27,19 @@ public class ShiroConfig extends ShiroWebFilterConfiguration {
     protected ShiroFilterFactoryBean shiroFilterFactoryBean() {
         ShiroFilterFactoryBean shiroFilterFactoryBean = super.shiroFilterFactoryBean();
         CallbackFilter callbackFilter = new CallbackFilter();
-        callbackFilter.setConfig(new Config(furiousClient()));
+        Config config = new Config(furiousClient());
+        callbackFilter.setConfig(config);
+        SecurityFilter ssoFilter = new SecurityFilter();
+        ssoFilter.setConfig(config);
+        shiroFilterFactoryBean.getFilters().put("sso", ssoFilter);
         shiroFilterFactoryBean.getFilters().put("callbackFilter", callbackFilter);
         Map<String, String> map = new LinkedHashMap<>();
+        map.put("/", "sso");
         map.put("/callback", "callbackFilter");
         map.put("/login**", "anon");
         map.put("/sign**", "anon");
         map.put("/**", "authc");
+
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
 
